@@ -1,6 +1,7 @@
 let currentDate = new Date();
 let selectedDate = null;
 let tasks = {};
+let modal = null;
 
 // Load tasks from server
 async function loadTasks() {
@@ -24,6 +25,20 @@ const userSettings = {
 
 // Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize modal
+    modal = document.getElementById('taskModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+
+    closeBtn.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
     // Calendar navigation
     document.getElementById('prevMonth').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -49,20 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
         renderYearView();
     });
-
-    // Modal handling
-    const modal = document.getElementById('taskModal');
-    const closeBtn = document.getElementsByClassName('close')[0];
-
-    closeBtn.onclick = () => {
-        modal.style.display = 'none';
-    };
-
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
 
     // Task form handling
     document.getElementById('taskForm').addEventListener('submit', async (e) => {
@@ -301,6 +302,10 @@ function addDayToCalendar(date, isOtherMonth = false) {
 
     // Add click handler for creating new tasks
     dayElement.addEventListener('click', () => {
+        if (!modal) {
+            console.error('Modal element not found');
+            return;
+        }
         selectedDate = date;
         modal.style.display = 'block';
     });
