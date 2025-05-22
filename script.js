@@ -1,24 +1,13 @@
-import { currentConfig } from './config.js';
-
+// Initialize variables
 let currentDate = new Date();
 let selectedDate = null;
 let tasks = {};
 let modal = null;
 
 // API URL configuration
-const API_URL = currentConfig.apiUrl;
-
-// Load tasks from server
-async function loadTasks() {
-    try {
-        const response = await fetch(`${API_URL}/tasks`);
-        tasks = await response.json();
-        renderCalendar();
-        renderYearView();
-    } catch (error) {
-        console.error('Error loading tasks:', error);
-    }
-}
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : 'https://calendar-backend-8aqw.onrender.com';
 
 // User settings
 const userSettings = {
@@ -33,10 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize modal
     modal = document.getElementById('taskModal');
     const closeBtn = document.getElementsByClassName('close')[0];
-
-    closeBtn.onclick = () => {
-        modal.style.display = 'none';
-    };
+    closeBtn.onclick = () => modal.style.display = 'none';
 
     window.onclick = (event) => {
         if (event.target === modal) {
@@ -57,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderYearView();
     });
 
-    // Year navigation
     document.getElementById('prevYear').addEventListener('click', () => {
         currentDate.setFullYear(currentDate.getFullYear() - 1);
         renderCalendar();
@@ -73,27 +58,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Task form handling
     document.getElementById('taskForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Form submitted');
         try {
             const title = document.getElementById('taskTitle').value;
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
             const creator = document.getElementById('currentUser').value;
 
-            console.log('Form values:', { title, startTime, endTime, creator });
-            console.log('Selected date when submitting:', selectedDate);
-
             if (!selectedDate) {
-                console.error('No date selected');
                 alert('Please select a date first');
                 return;
             }
 
             const dateKey = selectedDate.toISOString().split('T')[0];
-            console.log('Using date key:', dateKey);
-
             if (!tasks[dateKey]) {
-                console.log('Initializing tasks array for date:', dateKey);
                 tasks[dateKey] = [];
             }
 
@@ -107,8 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: dateKey
             };
 
-            console.log('Created new task object:', newTask);
-
             const response = await fetch(`${API_URL}/tasks`, {
                 method: 'POST',
                 headers: {
@@ -118,22 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(newTask)
             });
 
-            console.log('Server response status:', response.status);
-            
             if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                throw new Error(
-                    errorData?.error || 
-                    errorData?.message || 
-                    `Server error: ${response.status}`
-                );
+                throw new Error(`Server error: ${response.status}`);
             }
 
             const responseData = await response.json();
-            console.log('Server response data:', responseData);
-
             tasks[dateKey].push(responseData);
-            console.log('Updated tasks for date:', tasks[dateKey]);
             
             modal.style.display = 'none';
             renderCalendar();
@@ -141,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('taskForm').reset();
         } catch (error) {
             console.error('Error creating task:', error);
-            alert(`Failed to create task: ${error.message}\n\nPlease check the browser console for more details.`);
+            alert('Failed to create task: ' + error.message);
         }
     });
 
@@ -151,6 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
     renderYearView();
 });
 
+// Load tasks from server
+async function loadTasks() {
+    try {
+        const response = await fetch(`${API_URL}/tasks`);
+        tasks = await response.json();
+        renderCalendar();
+        renderYearView();
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+    }
+}
+
+// Delete task
 async function deleteTask(dateKey, taskId) {
     if (confirm('Are you sure you want to delete this task?')) {
         try {
@@ -176,6 +154,7 @@ async function deleteTask(dateKey, taskId) {
     }
 }
 
+// Accept task
 async function acceptTask(dateKey, taskId) {
     try {
         const task = tasks[dateKey].find(t => t.id === taskId);
@@ -202,6 +181,7 @@ async function acceptTask(dateKey, taskId) {
     }
 }
 
+// Render calendar
 function renderCalendar() {
     const calendar = document.getElementById('calendar');
     const monthDisplay = document.getElementById('monthDisplay');
@@ -215,40 +195,33 @@ function renderCalendar() {
         year: 'numeric' 
     });
 
-    // Create grid cells for each day
-    const firstDayIndex = firstDay.getDay();
-    const lastDayIndex = lastDay.getDay();
-    const totalDays = firstDayIndex + lastDay.getDate() + (6 - lastDayIndex);
-    const rows = Math.ceil(totalDays / 7);
+    // Get the first day of the week (0-6)
+    const firstDayOfWeek = firstDay.getDay();
 
-    // Add days from previous month
+    // Add previous month's days
     const prevMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
-    for (let i = firstDayIndex - 1; i >= 0; i--) {
-        const dayElement = document.createElement('div');
-        dayElement.classList.add('calendar-day', 'other-month');
-        const day = prevMonthLastDay - i;
-        dayElement.innerHTML = `<div class="day-number">${day}</div>`;
-        calendar.appendChild(dayElement);
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('calendar-day', 'other-month');
+        dayDiv.innerHTML = `<div class="day-number">${prevMonthLastDay - i}</div>`;
+        calendar.appendChild(dayDiv);
     }
 
-    // Add days of current month
+    // Add current month's days
     for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayElement = document.createElement('div');
-        dayElement.classList.add('calendar-day');
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('calendar-day');
         
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const dateKey = date.toISOString().split('T')[0];
-        
-        // Check if it's today
-        const today = new Date();
-        if (date.toDateString() === today.toDateString()) {
-            dayElement.classList.add('today');
+        const currentDayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        if (currentDayDate.toDateString() === new Date().toDateString()) {
+            dayDiv.classList.add('today');
         }
 
-        dayElement.innerHTML = `<div class="day-number">${day}</div>`;
+        dayDiv.innerHTML = `<div class="day-number">${day}</div>`;
         
         // Add tasks for this day
-        if (tasks[dateKey]) {
+        const dateKey = currentDayDate.toISOString().split('T')[0];
+        if (tasks[dateKey] && tasks[dateKey].length > 0) {
             const tasksContainer = document.createElement('div');
             tasksContainer.classList.add('tasks-container');
             
@@ -263,63 +236,44 @@ function renderCalendar() {
                     <span class="task-title">${task.title}</span>
                     <span class="task-time">${task.startTime}-${task.endTime}</span>
                 `;
-                
-                // Add delete button
+
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '×';
                 deleteButton.className = 'delete-btn';
-                deleteButton.title = 'Delete task';
                 deleteButton.onclick = (e) => {
                     e.stopPropagation();
                     deleteTask(dateKey, task.id);
                 };
-                
+
                 taskElement.appendChild(taskContent);
                 taskElement.appendChild(deleteButton);
-                
-                // Add click handler for accepting tasks
-                if (userSettings[task.creator]?.requiresApproval && !task.accepted) {
-                    taskContent.onclick = (e) => {
-                        e.stopPropagation();
-                        const currentUser = document.getElementById('currentUser').value;
-                        if (currentUser !== task.creator) {
-                            if (confirm('Do you want to accept this task?')) {
-                                acceptTask(dateKey, task.id);
-                            }
-                        }
-                    };
-                }
-                
                 tasksContainer.appendChild(taskElement);
             });
             
-            dayElement.appendChild(tasksContainer);
+            dayDiv.appendChild(tasksContainer);
         }
 
         // Add click handler for creating new tasks
-        dayElement.addEventListener('click', () => {
-            console.log('Day clicked:', date);
-            selectedDate = date;
-            if (modal) {
-                modal.style.display = 'block';
-            } else {
-                console.error('Modal element not found');
-            }
+        dayDiv.addEventListener('click', () => {
+            selectedDate = currentDayDate;
+            modal.style.display = 'block';
         });
 
-        calendar.appendChild(dayElement);
+        calendar.appendChild(dayDiv);
     }
 
-    // Add days from next month
-    const remainingDays = 42 - (firstDayIndex + lastDay.getDate()); // 42 is 6 rows * 7 days
-    for (let i = 1; i <= remainingDays; i++) {
-        const dayElement = document.createElement('div');
-        dayElement.classList.add('calendar-day', 'other-month');
-        dayElement.innerHTML = `<div class="day-number">${i}</div>`;
-        calendar.appendChild(dayElement);
+    // Add next month's days
+    const totalCells = 42; // 6 rows × 7 days
+    const remainingCells = totalCells - (firstDayOfWeek + lastDay.getDate());
+    for (let i = 1; i <= remainingCells; i++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('calendar-day', 'other-month');
+        dayDiv.innerHTML = `<div class="day-number">${i}</div>`;
+        calendar.appendChild(dayDiv);
     }
 }
 
+// Render year view
 function renderYearView() {
     const yearView = document.getElementById('yearView');
     const yearDisplay = document.getElementById('yearDisplay');
@@ -367,7 +321,6 @@ function renderYearView() {
             const dateKey = date.toISOString().split('T')[0];
             
             if (tasks[dateKey] && tasks[dateKey].length > 0) {
-                // Group tasks by user
                 const tasksByUser = tasks[dateKey].reduce((acc, task) => {
                     if (!acc[task.creator]) {
                         acc[task.creator] = {
@@ -382,14 +335,11 @@ function renderYearView() {
                     return acc;
                 }, {});
 
-                // Apply classes based on tasks
                 const userTypes = Object.keys(tasksByUser);
-                
                 if (userTypes.length > 1) {
                     dayElement.classList.add('multiple-tasks');
                 }
 
-                // Apply the color of the user with the most tasks
                 let maxTasks = 0;
                 let dominantUser = null;
                 let isAccepted = false;
@@ -415,12 +365,10 @@ function renderYearView() {
 
         monthPreview.appendChild(monthGrid);
 
-        // Add click handler to navigate to this month
         monthPreview.addEventListener('click', () => {
             currentDate.setMonth(index);
             renderCalendar();
             renderYearView();
-            // Scroll to the monthly view
             document.querySelector('.calendar-container').scrollIntoView({ 
                 behavior: 'smooth' 
             });
