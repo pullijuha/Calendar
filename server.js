@@ -10,7 +10,8 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:3000',
-        'https://pullijuha88.github.io'  // Add your GitHub Pages domain
+        'http://localhost:5500',
+        'https://pullijuha88.github.io'  // Your GitHub Pages domain
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true

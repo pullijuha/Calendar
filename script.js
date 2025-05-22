@@ -1,12 +1,12 @@
+import { currentConfig } from './config.js';
+
 let currentDate = new Date();
 let selectedDate = null;
 let tasks = {};
 let modal = null;
 
 // API URL configuration
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000'
-    : process.env.BACKEND_URL || 'https://your-backend-url.com';  // Use environment variable
+const API_URL = currentConfig.apiUrl;
 
 // Load tasks from server
 async function loadTasks() {
