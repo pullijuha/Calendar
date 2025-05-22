@@ -22,94 +22,114 @@ const userSettings = {
     julia: { requiresApproval: false }
 };
 
-// Calendar navigation
-document.getElementById('prevMonth').addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
-    renderYearView();
-});
-
-document.getElementById('nextMonth').addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
-    renderYearView();
-});
-
-// Year navigation
-document.getElementById('prevYear').addEventListener('click', () => {
-    currentDate.setFullYear(currentDate.getFullYear() - 1);
-    renderCalendar();
-    renderYearView();
-});
-
-document.getElementById('nextYear').addEventListener('click', () => {
-    currentDate.setFullYear(currentDate.getFullYear() + 1);
-    renderCalendar();
-    renderYearView();
-});
-
-// Modal handling
-const modal = document.getElementById('taskModal');
-const closeBtn = document.getElementsByClassName('close')[0];
-
-closeBtn.onclick = () => {
-    modal.style.display = 'none';
-};
-
-window.onclick = (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
-
-// Task form handling
-document.getElementById('taskForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('taskTitle').value;
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
-    const creator = document.getElementById('currentUser').value;
-
-    if (!selectedDate) return;
-
-    const dateKey = selectedDate.toISOString().split('T')[0];
-    if (!tasks[dateKey]) {
-        tasks[dateKey] = [];
-    }
-
-    const newTask = {
-        title,
-        startTime,
-        endTime,
-        accepted: !userSettings[creator].requiresApproval,
-        creator,
-        id: Date.now(),
-        date: dateKey
-    };
-
-    try {
-        const response = await fetch('http://localhost:3000/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newTask)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to create task');
-        }
-
-        tasks[dateKey].push(newTask);
-
-        modal.style.display = 'none';
+// Wait for DOM to be fully loaded before initializing
+document.addEventListener('DOMContentLoaded', () => {
+    // Calendar navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
         renderCalendar();
         renderYearView();
-        document.getElementById('taskForm').reset();
-    } catch (error) {
-        console.error('Error creating task:', error);
-        alert('Failed to create task');
-    }
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+        renderYearView();
+    });
+
+    // Year navigation
+    document.getElementById('prevYear').addEventListener('click', () => {
+        currentDate.setFullYear(currentDate.getFullYear() - 1);
+        renderCalendar();
+        renderYearView();
+    });
+
+    document.getElementById('nextYear').addEventListener('click', () => {
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        renderCalendar();
+        renderYearView();
+    });
+
+    // Modal handling
+    const modal = document.getElementById('taskModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+
+    closeBtn.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Task form handling
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('taskTitle').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const creator = document.getElementById('currentUser').value;
+
+        if (!selectedDate) {
+            console.error('No date selected');
+            alert('Please select a date first');
+            return;
+        }
+
+        const dateKey = selectedDate.toISOString().split('T')[0];
+        if (!tasks[dateKey]) {
+            tasks[dateKey] = [];
+        }
+
+        const newTask = {
+            title,
+            startTime,
+            endTime,
+            accepted: !userSettings[creator].requiresApproval,
+            creator,
+            id: Date.now(),
+            date: dateKey
+        };
+
+        console.log('Attempting to create task:', newTask);
+
+        try {
+            const response = await fetch('http://localhost:3000/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTask)
+            });
+
+            console.log('Server response status:', response.status);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server error:', errorData);
+                throw new Error(`Failed to create task: ${errorData.error || 'Unknown error'}`);
+            }
+
+            const savedTask = await response.json();
+            console.log('Task saved successfully:', savedTask);
+
+            tasks[dateKey].push(savedTask);
+            modal.style.display = 'none';
+            renderCalendar();
+            renderYearView();
+            document.getElementById('taskForm').reset();
+        } catch (error) {
+            console.error('Error creating task:', error);
+            alert(`Failed to create task: ${error.message}`);
+        }
+    });
+
+    // Initial load
+    loadTasks();
+    renderCalendar();
+    renderYearView();
 });
 
 async function deleteTask(dateKey, taskId) {
@@ -371,9 +391,4 @@ function renderYearView() {
 
         yearView.appendChild(monthPreview);
     });
-}
-
-// Initial load
-loadTasks();
-renderCalendar();
-renderYearView(); 
+} 

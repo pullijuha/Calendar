@@ -2,12 +2,16 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 require('dotenv').config();
 const app = express();
 
 // Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
+
+// Serve static files
+app.use(express.static(__dirname));
 
 // Connect to MongoDB
 console.log('Attempting to connect to MongoDB...');
@@ -43,6 +47,11 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Serve index.html for the root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Task endpoints
 app.get('/tasks', async (req, res) => {
     try {
@@ -72,14 +81,32 @@ app.get('/tasks', async (req, res) => {
 
 app.post('/tasks', async (req, res) => {
     try {
-        console.log('Creating new task:', req.body);
+        console.log('Creating new task with data:', req.body);
+        
+        // Validate required fields
+        const requiredFields = ['title', 'startTime', 'endTime', 'creator', 'date', 'id'];
+        const missingFields = requiredFields.filter(field => !req.body[field]);
+        
+        if (missingFields.length > 0) {
+            console.error('Missing required fields:', missingFields);
+            return res.status(400).json({ 
+                error: `Missing required fields: ${missingFields.join(', ')}` 
+            });
+        }
+
         const task = new Task(req.body);
+        console.log('Created task model:', task);
+
         const savedTask = await task.save();
-        console.log('Task saved successfully:', savedTask);
+        console.log('Task saved to database:', savedTask);
+        
         res.status(201).json(savedTask);
     } catch (error) {
-        console.error('Error creating task:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Error in POST /tasks:', error);
+        res.status(500).json({ 
+            error: error.message,
+            details: error.stack 
+        });
     }
 });
 
@@ -132,9 +159,6 @@ app.post('/send-email', (req, res) => {
         }
     });
 });
-
-// Serve static files
-app.use(express.static('.'));
 
 const PORT = 3000;
 app.listen(PORT, () => {
