@@ -5,9 +5,9 @@ let tasks = {};
 let modal = null;
 
 // API URL configuration
-const API_URL = window.location.hostname === 'localhost' 
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
-    : 'http://100.20.92.101:3000';  // Backend IP address
+    : 'https://calendar-w3f1.onrender.com';  // Render.com backend URL
 
 // User settings
 const userSettings = {
