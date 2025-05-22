@@ -215,99 +215,109 @@ function renderCalendar() {
         year: 'numeric' 
     });
 
-    // Add days from previous month
+    // Create grid cells for each day
     const firstDayIndex = firstDay.getDay();
-    for (let i = firstDayIndex; i > 0; i--) {
-        const prevDate = new Date(firstDay);
-        prevDate.setDate(prevDate.getDate() - i);
-        addDayToCalendar(prevDate, true);
+    const lastDayIndex = lastDay.getDay();
+    const totalDays = firstDayIndex + lastDay.getDate() + (6 - lastDayIndex);
+    const rows = Math.ceil(totalDays / 7);
+
+    // Add days from previous month
+    const prevMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('calendar-day', 'other-month');
+        const day = prevMonthLastDay - i;
+        dayElement.innerHTML = `<div class="day-number">${day}</div>`;
+        calendar.appendChild(dayElement);
     }
 
     // Add days of current month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-        addDayToCalendar(date);
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('calendar-day');
+        
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        const dateKey = date.toISOString().split('T')[0];
+        
+        // Check if it's today
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            dayElement.classList.add('today');
+        }
+
+        dayElement.innerHTML = `<div class="day-number">${day}</div>`;
+        
+        // Add tasks for this day
+        if (tasks[dateKey]) {
+            const tasksContainer = document.createElement('div');
+            tasksContainer.classList.add('tasks-container');
+            
+            tasks[dateKey].forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.classList.add('task', task.creator);
+                if (task.accepted) taskElement.classList.add('accepted');
+                
+                const taskContent = document.createElement('div');
+                taskContent.classList.add('task-content');
+                taskContent.innerHTML = `
+                    <span class="task-title">${task.title}</span>
+                    <span class="task-time">${task.startTime}-${task.endTime}</span>
+                `;
+                
+                // Add delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '×';
+                deleteButton.className = 'delete-btn';
+                deleteButton.title = 'Delete task';
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteTask(dateKey, task.id);
+                };
+                
+                taskElement.appendChild(taskContent);
+                taskElement.appendChild(deleteButton);
+                
+                // Add click handler for accepting tasks
+                if (userSettings[task.creator]?.requiresApproval && !task.accepted) {
+                    taskContent.onclick = (e) => {
+                        e.stopPropagation();
+                        const currentUser = document.getElementById('currentUser').value;
+                        if (currentUser !== task.creator) {
+                            if (confirm('Do you want to accept this task?')) {
+                                acceptTask(dateKey, task.id);
+                            }
+                        }
+                    };
+                }
+                
+                tasksContainer.appendChild(taskElement);
+            });
+            
+            dayElement.appendChild(tasksContainer);
+        }
+
+        // Add click handler for creating new tasks
+        dayElement.addEventListener('click', () => {
+            console.log('Day clicked:', date);
+            selectedDate = date;
+            if (modal) {
+                modal.style.display = 'block';
+            } else {
+                console.error('Modal element not found');
+            }
+        });
+
+        calendar.appendChild(dayElement);
     }
 
     // Add days from next month
-    const lastDayIndex = lastDay.getDay();
-    for (let i = 1; i < 7 - lastDayIndex; i++) {
-        const nextDate = new Date(lastDay);
-        nextDate.setDate(nextDate.getDate() + i);
-        addDayToCalendar(nextDate, true);
+    const remainingDays = 42 - (firstDayIndex + lastDay.getDate()); // 42 is 6 rows * 7 days
+    for (let i = 1; i <= remainingDays; i++) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('calendar-day', 'other-month');
+        dayElement.innerHTML = `<div class="day-number">${i}</div>`;
+        calendar.appendChild(dayElement);
     }
-}
-
-function addDayToCalendar(date, isOtherMonth = false) {
-    const calendar = document.getElementById('calendar');
-    const dayElement = document.createElement('div');
-    dayElement.classList.add('calendar-day');
-    if (isOtherMonth) dayElement.classList.add('other-month');
-    
-    // Check if it's today
-    const today = new Date();
-    if (date.toDateString() === today.toDateString()) {
-        dayElement.classList.add('today');
-    }
-
-    dayElement.innerHTML = `<div>${date.getDate()}</div>`;
-    
-    // Add tasks for this day
-    const dateKey = date.toISOString().split('T')[0];
-    if (tasks[dateKey]) {
-        tasks[dateKey].forEach(task => {
-            const taskElement = document.createElement('div');
-            taskElement.classList.add('task', task.creator);
-            if (task.accepted) taskElement.classList.add('accepted');
-            
-            // Create task content with delete button
-            const taskContent = document.createElement('span');
-            taskContent.textContent = `${task.title} (${task.startTime}-${task.endTime})`;
-            taskElement.appendChild(taskContent);
-            
-            // Add delete button
-            const deleteButton = document.createElement('button');
-            deleteButton.innerHTML = '×';
-            deleteButton.className = 'delete-btn';
-            deleteButton.title = 'Delete task';
-            deleteButton.onclick = (e) => {
-                e.stopPropagation();
-                deleteTask(dateKey, task.id);
-            };
-            taskElement.appendChild(deleteButton);
-            
-            // Add click handler for accepting tasks only for tasks that require approval
-            if (userSettings[task.creator].requiresApproval) {
-                taskContent.onclick = (e) => {
-                    e.stopPropagation();
-                    const currentUser = document.getElementById('currentUser').value;
-                    if (!task.accepted && currentUser !== task.creator) {
-                        if (confirm('Do you want to accept this task?')) {
-                            acceptTask(dateKey, task.id);
-                        }
-                    }
-                };
-            }
-            
-            dayElement.appendChild(taskElement);
-        });
-    }
-
-    // Add click handler for creating new tasks
-    dayElement.addEventListener('click', () => {
-        console.log('Day clicked:', date);
-        console.log('Modal element:', modal);
-        if (!modal) {
-            console.error('Modal element not found');
-            return;
-        }
-        selectedDate = date;
-        console.log('Selected date set to:', selectedDate);
-        modal.style.display = 'block';
-        console.log('Modal displayed');
-    });
-
-    calendar.appendChild(dayElement);
 }
 
 function renderYearView() {

@@ -60,26 +60,24 @@
 
 .year-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    margin-top: 20px;
 }
 
 .month-preview {
-    background: #f8f9fa;
-    border-radius: 5px;
+    border: 1px solid #ddd;
     padding: 10px;
     cursor: pointer;
-    transition: background-color 0.2s;
 }
 
 .month-preview:hover {
-    background: #e9ecef;
+    background-color: #f5f5f5;
 }
 
 .month-preview h3 {
+    margin: 0 0 10px 0;
     text-align: center;
-    margin-bottom: 10px;
-    color: #007bff;
 }
 
 .month-preview-grid {
@@ -87,17 +85,12 @@
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
     font-size: 0.8em;
+    text-align: center;
 }
 
 .month-preview-day {
-    text-align: center;
     padding: 2px;
-}
-
-.month-preview-day.has-tasks {
-    background-color: #007bff;
-    color: white;
-    border-radius: 50%;
+    border: 1px solid #eee;
 }
 
 .calendar-header {
@@ -119,93 +112,218 @@
 .weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
     text-align: center;
     font-weight: bold;
-    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    padding: 10px 0;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
+    padding: 10px;
 }
 
 .calendar-day {
-    border: 1px solid #ddd;
     min-height: 100px;
+    border: 1px solid #ddd;
     padding: 5px;
+    background-color: white;
+    position: relative;
     cursor: pointer;
 }
 
 .calendar-day:hover {
-    background-color: #f8f9fa;
+    background-color: #f5f5f5;
+}
+
+.other-month {
+    background-color: #f9f9f9;
+    color: #999;
+}
+
+.today {
+    background-color: #e6f3ff;
+    border-color: #3498db;
+}
+
+.day-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 5px;
 }
 
 .task {
     padding: 2px 5px;
-    margin: 2px 0;
     border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-    position: relative;
+    font-size: 0.8em;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.task .delete-btn {
-    background: rgba(255, 255, 255, 0.3);
+.task-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.task-title {
+    font-weight: bold;
+}
+
+.task-time {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.delete-btn {
+    background: none;
     border: none;
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-    text-align: center;
+    color: #ff4444;
     cursor: pointer;
-    margin-left: 5px;
-    padding: 0;
-    font-size: 12px;
+    font-size: 1.2em;
+    padding: 0 5px;
+}
+
+.delete-btn:hover {
+    color: #ff0000;
+}
+
+/* User-specific task colors */
+.task.juha { background-color: #ffebee; }
+.task.elina { background-color: #e8f5e9; }
+.task.iina { background-color: #e3f2fd; }
+.task.julia { background-color: #fff3e0; }
+
+.task.accepted {
+    border: 2px solid #4caf50;
+}
+
+/* Modal styles */
+.modal {
     display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 28px;
+}
+
+.close:hover {
+    color: #666;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, select, button {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
     color: white;
+    border: none;
+    cursor: pointer;
 }
 
-.task:hover .delete-btn {
-    display: block;
+button:hover {
+    background-color: #45a049;
 }
 
-.task:hover .delete-btn:hover {
-    background: rgba(255, 255, 255, 0.5);
+/* Calendar navigation */
+.calendar-header, .year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
-.task.juha {
-    background-color: #66b3ff;  /* Light blue */
-    color: white;
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 10px 0;
 }
 
-.task.juha.accepted {
-    background-color: #0052cc;  /* Dark blue */
-    color: white;
+/* Container layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.task.elina {
-    background-color: #dc3545;
-    color: white;
+.user-selection {
+    margin-bottom: 20px;
 }
 
-.task.elina.accepted {
-    background-color: #800080;
-    color: white;
+/* Year view styles */
+.year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 20px;
 }
 
-.task.iina {
-    background-color: #28a745;
-    color: white;
+.month-preview {
+    border: 1px solid #ddd;
+    padding: 10px;
+    cursor: pointer;
 }
 
-.task.julia {
-    background-color: #ff69b4;
-    color: white;
+.month-preview:hover {
+    background-color: #f5f5f5;
+}
+
+.month-preview h3 {
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.month-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.month-preview-day {
+    padding: 2px;
+    border: 1px solid #eee;
 }
 
 /* Yearly view task indicators */
@@ -253,62 +371,4 @@
     right: 0;
     font-size: 12px;
     color: #666;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 5px;
-    width: 80%;
-    max-width: 500px;
-    position: relative;
-}
-
-.close {
-    position: absolute;
-    right: 10px;
-    top: 5px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-#taskForm {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-#taskForm input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-#taskForm button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.other-month {
-    opacity: 0.5;
-}
-
-.today {
-    background-color: #e9ecef;
 } 
