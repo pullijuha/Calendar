@@ -85,6 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('startDate').value = today;
         document.getElementById('endDate').value = today;
+        
+        // Set default times to 16:00
+        document.getElementById('startTimeHour').value = '16';
+        document.getElementById('startTimeMinute').value = '00';
+        document.getElementById('endTimeHour').value = '18';
+        document.getElementById('endTimeMinute').value = '00';
     };
 
     // Task form handling
@@ -128,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 creator,
                 notes,
                 id: Date.now(),
-                date: startDate  // Add the date field that the server requires
+                date: startDate  // Set initial date to start date
             };
 
             const response = await fetch(`${API_URL}/tasks`, {
@@ -156,7 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!tasks[dateKey]) {
                     tasks[dateKey] = [];
                 }
-                tasks[dateKey].push(responseData);
+                // Create a new task instance for each date
+                const taskForDate = {
+                    ...responseData,
+                    date: dateKey  // Set the correct date for each instance
+                };
+                tasks[dateKey].push(taskForDate);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             
@@ -171,13 +182,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // When opening the task modal, set default dates
+    // When opening the task modal, set default dates and times
     document.getElementById('calendar').addEventListener('click', (e) => {
         if (e.target.classList.contains('calendar-day')) {
             selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(e.target.querySelector('.day-number').textContent));
             const dateString = selectedDate.toISOString().split('T')[0];
+            
+            // Set default dates
             document.getElementById('startDate').value = dateString;
             document.getElementById('endDate').value = dateString;
+            
+            // Set default times to 16:00
+            document.getElementById('startTimeHour').value = '16';
+            document.getElementById('startTimeMinute').value = '00';
+            document.getElementById('endTimeHour').value = '18';
+            document.getElementById('endTimeMinute').value = '00';
+            
             modal.style.display = 'block';
         }
     });
