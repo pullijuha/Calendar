@@ -80,35 +80,54 @@ document.addEventListener('DOMContentLoaded', () => {
         renderYearView();
     });
 
+    // Set default dates when opening the task form
+    const setDefaultDates = () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+    };
+
     // Task form handling
     document.getElementById('taskForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
             const title = document.getElementById('taskTitle').value;
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
+            const startDate = document.getElementById('startDate').value;
+            const startHour = document.getElementById('startTimeHour').value.padStart(2, '0');
+            const startMinute = document.getElementById('startTimeMinute').value.padStart(2, '0');
+            const startTime = `${startHour}:${startMinute}`;
+            const endDate = document.getElementById('endDate').value;
+            const endHour = document.getElementById('endTimeHour').value.padStart(2, '0');
+            const endMinute = document.getElementById('endTimeMinute').value.padStart(2, '0');
+            const endTime = `${endHour}:${endMinute}`;
             const creator = document.getElementById('currentUser').value;
             const notes = document.getElementById('taskNotes').value;
 
-            if (!selectedDate) {
-                alert('Please select a date first');
+            // Validate time inputs
+            if (startHour < 0 || startHour > 23 || startMinute < 0 || startMinute > 59 ||
+                endHour < 0 || endHour > 23 || endMinute < 0 || endMinute > 59) {
+                alert('Please enter valid times (hours: 0-23, minutes: 0-59)');
                 return;
             }
 
-            const dateKey = selectedDate.toISOString().split('T')[0];
-            if (!tasks[dateKey]) {
-                tasks[dateKey] = [];
+            const start = new Date(startDate + 'T' + startTime);
+            const end = new Date(endDate + 'T' + endTime);
+
+            if (end < start) {
+                alert('End time must be after start time');
+                return;
             }
 
             const newTask = {
                 title,
+                startDate,
                 startTime,
+                endDate,
                 endTime,
                 accepted: !userSettings[creator].requiresApproval,
                 creator,
                 notes,
-                id: Date.now(),
-                date: dateKey
+                id: Date.now()
             };
 
             const response = await fetch(`${API_URL}/tasks`, {
@@ -126,7 +145,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const responseData = await response.json();
-            tasks[dateKey].push(responseData);
+            
+            // Add task to all relevant dates
+            const currentDate = new Date(startDate);
+            const endDateObj = new Date(endDate);
+            
+            while (currentDate <= endDateObj) {
+                const dateKey = currentDate.toISOString().split('T')[0];
+                if (!tasks[dateKey]) {
+                    tasks[dateKey] = [];
+                }
+                tasks[dateKey].push(responseData);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
             
             modal.style.display = 'none';
             renderCalendar();
@@ -136,6 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Detailed error:', error);
             console.error('Error stack:', error.stack);
             alert('Failed to create task: ' + error.message);
+        }
+    });
+
+    // When opening the task modal, set default dates
+    document.getElementById('calendar').addEventListener('click', (e) => {
+        if (e.target.classList.contains('calendar-day')) {
+            selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(e.target.querySelector('.day-number').textContent));
+            const dateString = selectedDate.toISOString().split('T')[0];
+            document.getElementById('startDate').value = dateString;
+            document.getElementById('endDate').value = dateString;
+            modal.style.display = 'block';
         }
     });
 

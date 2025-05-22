@@ -54,7 +54,7 @@ body {
     aspect-ratio: 1;
     border: 1px solid #ddd;
     padding: 2px;
-    min-height: 50px;
+    min-height: 40px;
     position: relative;
     background: white;
     font-size: 0.8em;
@@ -164,6 +164,7 @@ body {
     font-size: 0.9em;
 }
 
+input[type="date"],
 input[type="time"] {
     -webkit-appearance: textfield;
     -moz-appearance: textfield;
@@ -172,7 +173,7 @@ input[type="time"] {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 16px; /* Prevents zoom on mobile */
+    font-size: 16px;
 }
 
 input, select, textarea {
@@ -212,6 +213,33 @@ button:hover {
     border: 1px solid #4CAF50;
 }
 
+/* Time input styles */
+.time-input-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-input-container input[type="number"] {
+    width: 45px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    -moz-appearance: textfield;
+}
+
+.time-input-container input[type="number"]::-webkit-outer-spin-button,
+.time-input-container input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.time-input-container span {
+    font-size: 16px;
+    font-weight: bold;
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
     body {
@@ -223,7 +251,7 @@ button:hover {
     }
 
     .calendar-day {
-        min-height: 40px;
+        min-height: 35px;
         font-size: 0.7em;
         padding: 1px;
     }
@@ -288,12 +316,24 @@ button:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 5px;
     }
+
+    input[type="date"],
+    input[type="time"] {
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .time-input-container input[type="number"] {
+        padding: 6px;
+        font-size: 14px;
+        width: 40px;
+    }
 }
 
 /* Extra small devices */
 @media (max-width: 480px) {
     .calendar-day {
-        min-height: 35px;
+        min-height: 30px;
         font-size: 0.65em;
     }
 
@@ -346,5 +386,17 @@ button:hover {
     button {
         padding: 5px 10px;
         font-size: 13px;
+    }
+
+    input[type="date"],
+    input[type="time"] {
+        padding: 4px;
+        font-size: 13px;
+    }
+
+    .time-input-container input[type="number"] {
+        padding: 4px;
+        font-size: 13px;
+        width: 35px;
     }
 } 
