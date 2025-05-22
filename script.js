@@ -3,6 +3,8 @@ let currentDate = new Date();
 let selectedDate = null;
 let tasks = {};
 let modal = null;
+let taskDetailsModal = null;
+let currentTask = null;
 
 // API URL configuration
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -19,14 +21,37 @@ const userSettings = {
 
 // Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize modal
+    // Initialize modals
     modal = document.getElementById('taskModal');
-    const closeBtn = document.getElementsByClassName('close')[0];
-    closeBtn.onclick = () => modal.style.display = 'none';
+    taskDetailsModal = document.getElementById('taskDetailsModal');
+    
+    // Set up modal close buttons
+    document.querySelectorAll('.modal .close').forEach(closeBtn => {
+        closeBtn.onclick = () => {
+            modal.style.display = 'none';
+            taskDetailsModal.style.display = 'none';
+        };
+    });
 
     window.onclick = (event) => {
-        if (event.target === modal) {
+        if (event.target === modal || event.target === taskDetailsModal) {
             modal.style.display = 'none';
+            taskDetailsModal.style.display = 'none';
+        }
+    };
+
+    // Set up task action buttons
+    document.getElementById('deleteTaskBtn').onclick = () => {
+        if (currentTask) {
+            deleteTask(currentTask.date, currentTask.id);
+            taskDetailsModal.style.display = 'none';
+        }
+    };
+
+    document.getElementById('acceptTaskBtn').onclick = () => {
+        if (currentTask) {
+            acceptTask(currentTask.date, currentTask.id);
+            taskDetailsModal.style.display = 'none';
         }
     };
 
@@ -63,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
             const creator = document.getElementById('currentUser').value;
+            const notes = document.getElementById('taskNotes').value;
 
             if (!selectedDate) {
                 alert('Please select a date first');
@@ -80,12 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 endTime,
                 accepted: !userSettings[creator].requiresApproval,
                 creator,
+                notes,
                 id: Date.now(),
                 date: dateKey
             };
-
-            console.log('Sending task data:', newTask);
-            console.log('To URL:', `${API_URL}/tasks`);
 
             const response = await fetch(`${API_URL}/tasks`, {
                 method: 'POST',
@@ -96,16 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(newTask)
             });
 
-            console.log('Response status:', response.status);
-            
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(`Server error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
             }
 
             const responseData = await response.json();
-            console.log('Server response:', responseData);
-            
             tasks[dateKey].push(responseData);
             
             modal.style.display = 'none';
@@ -190,6 +210,21 @@ async function acceptTask(dateKey, taskId) {
     }
 }
 
+// Show task details
+function showTaskDetails(task) {
+    currentTask = task;
+    document.getElementById('detailsTitle').textContent = task.title;
+    document.getElementById('detailsTime').textContent = `${task.startTime} - ${task.endTime}`;
+    document.getElementById('detailsCreator').textContent = task.creator;
+    document.getElementById('detailsStatus').textContent = task.accepted ? 'Accepted' : 'Pending';
+    document.getElementById('detailsNotes').textContent = task.notes || 'No notes added';
+    
+    // Show/hide accept button based on task status
+    document.getElementById('acceptTaskBtn').style.display = task.accepted ? 'none' : 'inline-block';
+    
+    taskDetailsModal.style.display = 'block';
+}
+
 // Render calendar
 function renderCalendar() {
     const calendar = document.getElementById('calendar');
@@ -246,16 +281,13 @@ function renderCalendar() {
                     <span class="task-time">${task.startTime}-${task.endTime}</span>
                 `;
 
-                const deleteButton = document.createElement('button');
-                deleteButton.innerHTML = '×';
-                deleteButton.className = 'delete-btn';
-                deleteButton.onclick = (e) => {
+                // Add click handler to show task details
+                taskElement.onclick = (e) => {
                     e.stopPropagation();
-                    deleteTask(dateKey, task.id);
+                    showTaskDetails(task);
                 };
 
                 taskElement.appendChild(taskContent);
-                taskElement.appendChild(deleteButton);
                 tasksContainer.appendChild(taskElement);
             });
             

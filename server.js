@@ -45,7 +45,8 @@ const taskSchema = new mongoose.Schema({
     creator: { type: String, required: true },
     accepted: { type: Boolean, default: false },
     date: { type: String, required: true },
-    id: { type: Number, required: true }
+    id: { type: Number, required: true },
+    notes: { type: String, default: '' }  // Add notes field
 }, { 
     timestamps: true,
     strict: false 
