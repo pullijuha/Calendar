@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Task form handling
     document.getElementById('taskForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log('Form submitted');
         try {
             const title = document.getElementById('taskTitle').value;
             const startTime = document.getElementById('startTime').value;
@@ -75,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const creator = document.getElementById('currentUser').value;
 
             console.log('Form values:', { title, startTime, endTime, creator });
+            console.log('Selected date when submitting:', selectedDate);
 
             if (!selectedDate) {
                 console.error('No date selected');
@@ -83,9 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const dateKey = selectedDate.toISOString().split('T')[0];
-            console.log('Selected date:', dateKey);
+            console.log('Using date key:', dateKey);
 
             if (!tasks[dateKey]) {
+                console.log('Initializing tasks array for date:', dateKey);
                 tasks[dateKey] = [];
             }
 
@@ -99,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: dateKey
             };
 
+            console.log('Created new task object:', newTask);
             console.log('Sending task data to server:', newTask);
 
             let response;
@@ -302,12 +306,16 @@ function addDayToCalendar(date, isOtherMonth = false) {
 
     // Add click handler for creating new tasks
     dayElement.addEventListener('click', () => {
+        console.log('Day clicked:', date);
+        console.log('Modal element:', modal);
         if (!modal) {
             console.error('Modal element not found');
             return;
         }
         selectedDate = date;
+        console.log('Selected date set to:', selectedDate);
         modal.style.display = 'block';
+        console.log('Modal displayed');
     });
 
     calendar.appendChild(dayElement);
