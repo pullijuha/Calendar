@@ -7,7 +7,7 @@ let modal = null;
 // API URL configuration
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:10000'
-    : 'https://calendar-w3f1.onrender.com:10000';  // Render.com backend URL with correct port
+    : 'https://calendar-w3f1.onrender.com';  // Render.com backend URL
 
 // User settings
 const userSettings = {
