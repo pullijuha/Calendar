@@ -7,7 +7,7 @@ let modal = null;
 // API URL configuration
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000'
-    : 'https://calendar-backend-8aqw.onrender.com';
+    : 'http://100.20.92.101:3000';  // Backend IP address
 
 // User settings
 const userSettings = {

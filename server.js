@@ -11,7 +11,11 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:5500',
-        'https://pullijuha88.github.io'  // Your GitHub Pages domain
+        'http://127.0.0.1:5500',
+        'https://pullijuha88.github.io',
+        'http://100.20.92.101:3000',
+        'http://44.225.181.72:3000',
+        'http://44.227.217.144:3000'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
