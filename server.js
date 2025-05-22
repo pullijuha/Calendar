@@ -27,13 +27,13 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Task Schema
 const taskSchema = new mongoose.Schema({
-    title: String,
-    startTime: String,
-    endTime: String,
-    creator: String,
-    accepted: Boolean,
-    date: String,
-    id: Number
+    title: { type: String, required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    creator: { type: String, required: true },
+    accepted: { type: Boolean, default: false },
+    date: { type: String, required: true },
+    id: { type: Number, required: true }
 }, { 
     timestamps: true,
     strict: false 
@@ -84,11 +84,25 @@ app.get('/tasks', async (req, res) => {
 
 app.post('/tasks', async (req, res) => {
     try {
-        console.log('Creating new task with data:', req.body);
+        console.log('Received POST request to /tasks');
+        console.log('Request headers:', req.headers);
+        console.log('Request body:', req.body);
+
+        // Check if we received any data
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.error('No request body received');
+            return res.status(400).json({
+                error: 'No data received'
+            });
+        }
         
         // Validate required fields
         const requiredFields = ['title', 'startTime', 'endTime', 'creator', 'date', 'id'];
-        const missingFields = requiredFields.filter(field => !req.body[field]);
+        const missingFields = requiredFields.filter(field => {
+            const value = req.body[field];
+            console.log(`Checking field ${field}:`, value);
+            return value === undefined || value === null || value === '';
+        });
         
         if (missingFields.length > 0) {
             console.error('Missing required fields:', missingFields);
@@ -99,7 +113,7 @@ app.post('/tasks', async (req, res) => {
 
         // Create and save the task
         const taskData = {
-            title: req.body.title,
+            title: req.body.title.trim(),
             startTime: req.body.startTime,
             endTime: req.body.endTime,
             creator: req.body.creator,
@@ -108,14 +122,25 @@ app.post('/tasks', async (req, res) => {
             id: req.body.id
         };
 
-        const task = new Task(taskData);
-        console.log('Created task model:', task);
+        console.log('Creating new task with data:', taskData);
 
+        // Validate the task data
+        const task = new Task(taskData);
+        const validationError = task.validateSync();
+        if (validationError) {
+            console.error('Validation error:', validationError);
+            return res.status(400).json({
+                error: 'Validation error',
+                details: validationError.errors
+            });
+        }
+
+        console.log('Task validation passed, saving to database...');
         const savedTask = await task.save();
-        console.log('Task saved to database:', savedTask);
-        
+        console.log('Task saved to database:', savedTask.toObject());
+
         // Send back the saved task
-        res.status(201).json({
+        const responseData = {
             title: savedTask.title,
             startTime: savedTask.startTime,
             endTime: savedTask.endTime,
@@ -123,12 +148,19 @@ app.post('/tasks', async (req, res) => {
             accepted: savedTask.accepted,
             date: savedTask.date,
             id: savedTask.id
-        });
+        };
+
+        console.log('Sending response:', responseData);
+        res.status(201).json(responseData);
     } catch (error) {
         console.error('Error in POST /tasks:', error);
+        console.error('Error stack:', error.stack);
+        
+        // Send a more detailed error response
         res.status(500).json({ 
-            error: error.message,
-            details: error.stack 
+            error: 'Server error while creating task',
+            message: error.message,
+            details: error.stack
         });
     }
 });

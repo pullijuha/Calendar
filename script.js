@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const endTime = document.getElementById('endTime').value;
             const creator = document.getElementById('currentUser').value;
 
+            console.log('Form values:', { title, startTime, endTime, creator });
+
             if (!selectedDate) {
                 console.error('No date selected');
                 alert('Please select a date first');
@@ -80,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const dateKey = selectedDate.toISOString().split('T')[0];
+            console.log('Selected date:', dateKey);
+
             if (!tasks[dateKey]) {
                 tasks[dateKey] = [];
             }
@@ -94,34 +98,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: dateKey
             };
 
-            console.log('Attempting to create task:', newTask);
+            console.log('Sending task data to server:', newTask);
 
-            const response = await fetch('http://localhost:3000/tasks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newTask)
-            });
+            let response;
+            try {
+                response = await fetch('http://localhost:3000/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newTask)
+                });
+                console.log('Server response status:', response.status);
+            } catch (fetchError) {
+                console.error('Network error:', fetchError);
+                throw new Error('Network error: Could not connect to server');
+            }
 
-            console.log('Server response status:', response.status);
-            const responseData = await response.json();
-            console.log('Server response data:', responseData);
+            let responseData;
+            try {
+                const responseText = await response.text();
+                console.log('Raw server response:', responseText);
+                
+                try {
+                    responseData = JSON.parse(responseText);
+                    console.log('Parsed server response:', responseData);
+                } catch (parseError) {
+                    console.error('Error parsing response:', parseError);
+                    console.error('Raw response was:', responseText);
+                    throw new Error('Server sent invalid JSON response');
+                }
+            } catch (responseError) {
+                console.error('Error reading response:', responseError);
+                throw new Error('Could not read server response');
+            }
 
             if (!response.ok) {
-                throw new Error(responseData.error || 'Failed to create task');
+                console.error('Server error response:', responseData);
+                throw new Error(responseData.error || 'Server returned an error');
             }
 
             tasks[dateKey].push(responseData);
-            console.log('Task added to local state:', tasks[dateKey]);
+            console.log('Updated tasks for date:', tasks[dateKey]);
             
             modal.style.display = 'none';
             renderCalendar();
             renderYearView();
             document.getElementById('taskForm').reset();
         } catch (error) {
-            console.error('Error creating task:', error);
-            alert(`Failed to create task: ${error.message}`);
+            console.error('Full error details:', error);
+            alert(`Failed to create task: ${error.message}\n\nPlease check the browser console for more details.`);
         }
     });
 
