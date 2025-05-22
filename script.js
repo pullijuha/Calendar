@@ -67,35 +67,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Task form handling
     document.getElementById('taskForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const title = document.getElementById('taskTitle').value;
-        const startTime = document.getElementById('startTime').value;
-        const endTime = document.getElementById('endTime').value;
-        const creator = document.getElementById('currentUser').value;
-
-        if (!selectedDate) {
-            console.error('No date selected');
-            alert('Please select a date first');
-            return;
-        }
-
-        const dateKey = selectedDate.toISOString().split('T')[0];
-        if (!tasks[dateKey]) {
-            tasks[dateKey] = [];
-        }
-
-        const newTask = {
-            title,
-            startTime,
-            endTime,
-            accepted: !userSettings[creator].requiresApproval,
-            creator,
-            id: Date.now(),
-            date: dateKey
-        };
-
-        console.log('Attempting to create task:', newTask);
-
         try {
+            const title = document.getElementById('taskTitle').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const creator = document.getElementById('currentUser').value;
+
+            if (!selectedDate) {
+                console.error('No date selected');
+                alert('Please select a date first');
+                return;
+            }
+
+            const dateKey = selectedDate.toISOString().split('T')[0];
+            if (!tasks[dateKey]) {
+                tasks[dateKey] = [];
+            }
+
+            const newTask = {
+                title,
+                startTime,
+                endTime,
+                accepted: !userSettings[creator].requiresApproval,
+                creator,
+                id: Date.now(),
+                date: dateKey
+            };
+
+            console.log('Attempting to create task:', newTask);
+
             const response = await fetch('http://localhost:3000/tasks', {
                 method: 'POST',
                 headers: {
@@ -105,17 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             console.log('Server response status:', response.status);
+            const responseData = await response.json();
+            console.log('Server response data:', responseData);
 
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Server error:', errorData);
-                throw new Error(`Failed to create task: ${errorData.error || 'Unknown error'}`);
+                throw new Error(responseData.error || 'Failed to create task');
             }
 
-            const savedTask = await response.json();
-            console.log('Task saved successfully:', savedTask);
-
-            tasks[dateKey].push(savedTask);
+            tasks[dateKey].push(responseData);
+            console.log('Task added to local state:', tasks[dateKey]);
+            
             modal.style.display = 'none';
             renderCalendar();
             renderYearView();

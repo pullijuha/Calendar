@@ -34,6 +34,9 @@ const taskSchema = new mongoose.Schema({
     accepted: Boolean,
     date: String,
     id: Number
+}, { 
+    timestamps: true,
+    strict: false 
 });
 
 const Task = mongoose.model('Task', taskSchema);
@@ -94,13 +97,33 @@ app.post('/tasks', async (req, res) => {
             });
         }
 
-        const task = new Task(req.body);
+        // Create and save the task
+        const taskData = {
+            title: req.body.title,
+            startTime: req.body.startTime,
+            endTime: req.body.endTime,
+            creator: req.body.creator,
+            accepted: req.body.accepted || false,
+            date: req.body.date,
+            id: req.body.id
+        };
+
+        const task = new Task(taskData);
         console.log('Created task model:', task);
 
         const savedTask = await task.save();
         console.log('Task saved to database:', savedTask);
         
-        res.status(201).json(savedTask);
+        // Send back the saved task
+        res.status(201).json({
+            title: savedTask.title,
+            startTime: savedTask.startTime,
+            endTime: savedTask.endTime,
+            creator: savedTask.creator,
+            accepted: savedTask.accepted,
+            date: savedTask.date,
+            id: savedTask.id
+        });
     } catch (error) {
         console.error('Error in POST /tasks:', error);
         res.status(500).json({ 
