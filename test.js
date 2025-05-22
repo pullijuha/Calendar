@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const API_URL = 'https://calendar-w3f1.onrender.com';
+const API_URL = 'https://calendar-w3f1.onrender.com:10000';
 
 async function testServer() {
     try {
