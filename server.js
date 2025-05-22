@@ -1,9 +1,16 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import nodemailer from 'nodemailer';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config();
 const app = express();
 
 // Enable CORS with specific options
@@ -222,9 +229,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0';  // Listen on all network interfaces
-
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 }); 
