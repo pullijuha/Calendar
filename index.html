@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="user-selection">
+            <label for="currentUser">Current User:</label>
+            <select id="currentUser">
+                <option value="juha">Juha</option>
+                <option value="elina">Elina</option>
+                <option value="iina">Iina</option>
+                <option value="julia">Julia</option>
+            </select>
+        </div>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prevMonth">&lt;</button>
+                <h2 id="monthDisplay"></h2>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <div class="weekdays">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div id="calendar" class="calendar-grid"></div>
+        </div>
+
+        <div class="year-view-container">
+            <div class="year-header">
+                <button id="prevYear">&lt;</button>
+                <h2 id="yearDisplay"></h2>
+                <button id="nextYear">&gt;</button>
+            </div>
+            <div id="yearView" class="year-grid"></div>
+        </div>
+
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Create Task</h3>
+                <form id="taskForm">
+                    <input type="text" id="taskTitle" placeholder="Task Title" required>
+                    <input type="time" id="startTime" required>
+                    <input type="time" id="endTime" required>
+                    <button type="submit">Create Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 

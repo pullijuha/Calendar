@@ -1,0 +1,314 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.user-selection {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-selection select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.year-view-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.year-header button {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.year-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.month-preview {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.month-preview:hover {
+    background: #e9ecef;
+}
+
+.month-preview h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.month-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    font-size: 0.8em;
+}
+
+.month-preview-day {
+    text-align: center;
+    padding: 2px;
+}
+
+.month-preview-day.has-tasks {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header button {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    border: 1px solid #ddd;
+    min-height: 100px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.task {
+    padding: 2px 5px;
+    margin: 2px 0;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task .delete-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    margin-left: 5px;
+    padding: 0;
+    font-size: 12px;
+    display: none;
+    color: white;
+}
+
+.task:hover .delete-btn {
+    display: block;
+}
+
+.task:hover .delete-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.task.juha {
+    background-color: #66b3ff;  /* Light blue */
+    color: white;
+}
+
+.task.juha.accepted {
+    background-color: #0052cc;  /* Dark blue */
+    color: white;
+}
+
+.task.elina {
+    background-color: #dc3545;
+    color: white;
+}
+
+.task.elina.accepted {
+    background-color: #800080;
+    color: white;
+}
+
+.task.iina {
+    background-color: #28a745;
+    color: white;
+}
+
+.task.julia {
+    background-color: #ff69b4;
+    color: white;
+}
+
+/* Yearly view task indicators */
+.month-preview-day.has-tasks-juha {
+    background-color: #66b3ff;
+    color: white;
+    border-radius: 50%;
+}
+
+.month-preview-day.has-tasks-juha.accepted {
+    background-color: #0052cc;
+}
+
+.month-preview-day.has-tasks-elina {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+}
+
+.month-preview-day.has-tasks-elina.accepted {
+    background-color: #800080;
+}
+
+.month-preview-day.has-tasks-iina {
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+}
+
+.month-preview-day.has-tasks-julia {
+    background-color: #ff69b4;
+    color: white;
+    border-radius: 50%;
+}
+
+/* Multiple tasks indicator */
+.month-preview-day.multiple-tasks {
+    position: relative;
+}
+
+.month-preview-day.multiple-tasks::after {
+    content: '•';
+    position: absolute;
+    bottom: -2px;
+    right: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#taskForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#taskForm input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#taskForm button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.other-month {
+    opacity: 0.5;
+}
+
+.today {
+    background-color: #e9ecef;
+} 
