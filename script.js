@@ -6,8 +6,8 @@ let modal = null;
 
 // API URL configuration
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:10000'
-    : 'https://calendar-w3f1.onrender.com';  // Render.com backend URL
+    ? 'http://localhost:10000'  // Local development with port
+    : 'https://calendar-w3f1.onrender.com';  // Production URL without port
 
 // User settings
 const userSettings = {
@@ -84,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: dateKey
             };
 
+            console.log('Sending task data:', newTask);
+            console.log('To URL:', `${API_URL}/tasks`);
+
             const response = await fetch(`${API_URL}/tasks`, {
                 method: 'POST',
                 headers: {
@@ -93,11 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(newTask)
             });
 
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(`Server error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
             }
 
             const responseData = await response.json();
+            console.log('Server response:', responseData);
+            
             tasks[dateKey].push(responseData);
             
             modal.style.display = 'none';
@@ -105,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderYearView();
             document.getElementById('taskForm').reset();
         } catch (error) {
-            console.error('Error creating task:', error);
+            console.error('Detailed error:', error);
+            console.error('Error stack:', error.stack);
             alert('Failed to create task: ' + error.message);
         }
     });
