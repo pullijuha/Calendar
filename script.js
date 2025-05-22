@@ -103,44 +103,30 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             console.log('Created new task object:', newTask);
-            console.log('Sending task data to server:', newTask);
 
-            let response;
-            try {
-                response = await fetch('/tasks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newTask)
-                });
-                console.log('Server response status:', response.status);
-            } catch (fetchError) {
-                console.error('Network error:', fetchError);
-                throw new Error('Network error: Could not connect to server');
-            }
+            const response = await fetch('/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTask)
+            });
+
+            console.log('Server response status:', response.status);
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
 
             let responseData;
             try {
-                const responseText = await response.text();
-                console.log('Raw server response:', responseText);
-                
-                try {
-                    responseData = JSON.parse(responseText);
-                    console.log('Parsed server response:', responseData);
-                } catch (parseError) {
-                    console.error('Error parsing response:', parseError);
-                    console.error('Raw response was:', responseText);
-                    throw new Error('Server sent invalid JSON response');
-                }
-            } catch (responseError) {
-                console.error('Error reading response:', responseError);
-                throw new Error('Could not read server response');
+                responseData = JSON.parse(responseText);
+                console.log('Parsed server response:', responseData);
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                throw new Error(`Server sent invalid JSON response: ${responseText}`);
             }
 
             if (!response.ok) {
-                console.error('Server error response:', responseData);
-                throw new Error(responseData.error || 'Server returned an error');
+                throw new Error(responseData.error || responseData.message || 'Server returned an error');
             }
 
             tasks[dateKey].push(responseData);
@@ -151,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderYearView();
             document.getElementById('taskForm').reset();
         } catch (error) {
-            console.error('Full error details:', error);
+            console.error('Error creating task:', error);
             alert(`Failed to create task: ${error.message}\n\nPlease check the browser console for more details.`);
         }
     });

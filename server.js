@@ -137,7 +137,7 @@ app.post('/tasks', async (req, res) => {
 
         console.log('Task validation passed, saving to database...');
         const savedTask = await task.save();
-        console.log('Task saved to database:', savedTask.toObject());
+        console.log('Task saved successfully:', savedTask);
 
         // Send back the saved task
         const responseData = {
@@ -150,17 +150,15 @@ app.post('/tasks', async (req, res) => {
             id: savedTask.id
         };
 
-        console.log('Sending response:', responseData);
-        res.status(201).json(responseData);
+        console.log('Sending response:', JSON.stringify(responseData));
+        return res.status(201).json(responseData);
     } catch (error) {
         console.error('Error in POST /tasks:', error);
         console.error('Error stack:', error.stack);
         
-        // Send a more detailed error response
-        res.status(500).json({ 
+        return res.status(500).json({ 
             error: 'Server error while creating task',
-            message: error.message,
-            details: error.stack
+            message: error.message
         });
     }
 });
