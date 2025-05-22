@@ -148,7 +148,7 @@ app.post('/tasks', async (req, res) => {
         console.log('Task saved successfully:', savedTask);
 
         // Send back the saved task
-        const responseData = {
+        return res.status(201).json({
             title: savedTask.title,
             startTime: savedTask.startTime,
             endTime: savedTask.endTime,
@@ -156,10 +156,8 @@ app.post('/tasks', async (req, res) => {
             accepted: savedTask.accepted,
             date: savedTask.date,
             id: savedTask.id
-        };
+        });
 
-        console.log('Sending response:', JSON.stringify(responseData));
-        return res.status(201).json(responseData);
     } catch (error) {
         console.error('Error in POST /tasks:', error);
         console.error('Error stack:', error.stack);

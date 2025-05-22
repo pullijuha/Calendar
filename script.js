@@ -113,26 +113,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify(newTask)
             });
 
             console.log('Server response status:', response.status);
-            const responseText = await response.text();
-            console.log('Raw server response:', responseText);
-
-            let responseData;
-            try {
-                responseData = JSON.parse(responseText);
-                console.log('Parsed server response:', responseData);
-            } catch (parseError) {
-                console.error('Error parsing response:', parseError);
-                throw new Error(`Server sent invalid JSON response: ${responseText}`);
-            }
-
+            
             if (!response.ok) {
-                throw new Error(responseData.error || responseData.message || 'Server returned an error');
+                const errorData = await response.json().catch(() => null);
+                throw new Error(
+                    errorData?.error || 
+                    errorData?.message || 
+                    `Server error: ${response.status}`
+                );
             }
+
+            const responseData = await response.json();
+            console.log('Server response data:', responseData);
 
             tasks[dateKey].push(responseData);
             console.log('Updated tasks for date:', tasks[dateKey]);
