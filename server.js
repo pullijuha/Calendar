@@ -6,8 +6,16 @@ const path = require('path');
 require('dotenv').config();
 const app = express();
 
-// Enable CORS and JSON parsing
-app.use(cors());
+// Enable CORS with specific options
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'https://pullijuha88.github.io'  // Add your GitHub Pages domain
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Serve static files from the current directory

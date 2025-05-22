@@ -3,10 +3,15 @@ let selectedDate = null;
 let tasks = {};
 let modal = null;
 
+// API URL configuration
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : process.env.BACKEND_URL || 'https://your-backend-url.com';  // Use environment variable
+
 // Load tasks from server
 async function loadTasks() {
     try {
-        const response = await fetch('/tasks');
+        const response = await fetch(`${API_URL}/tasks`);
         tasks = await response.json();
         renderCalendar();
         renderYearView();
@@ -104,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Created new task object:', newTask);
 
-            const response = await fetch('/tasks', {
+            const response = await fetch(`${API_URL}/tasks`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -151,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function deleteTask(dateKey, taskId) {
     if (confirm('Are you sure you want to delete this task?')) {
         try {
-            const response = await fetch(`/tasks/${taskId}`, {
+            const response = await fetch(`${API_URL}/tasks/${taskId}`, {
                 method: 'DELETE'
             });
 
@@ -178,7 +183,7 @@ async function acceptTask(dateKey, taskId) {
         const task = tasks[dateKey].find(t => t.id === taskId);
         if (!task) return;
 
-        const response = await fetch(`/tasks/${taskId}`, {
+        const response = await fetch(`${API_URL}/tasks/${taskId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
