@@ -6,7 +6,7 @@ let modal = null;
 // Load tasks from server
 async function loadTasks() {
     try {
-        const response = await fetch('http://localhost:3000/tasks');
+        const response = await fetch('/tasks');
         tasks = await response.json();
         renderCalendar();
         renderYearView();
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let response;
             try {
-                response = await fetch('http://localhost:3000/tasks', {
+                response = await fetch('/tasks', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function deleteTask(dateKey, taskId) {
     if (confirm('Are you sure you want to delete this task?')) {
         try {
-            const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+            const response = await fetch(`/tasks/${taskId}`, {
                 method: 'DELETE'
             });
 
@@ -192,7 +192,7 @@ async function acceptTask(dateKey, taskId) {
         const task = tasks[dateKey].find(t => t.id === taskId);
         if (!task) return;
 
-        const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        const response = await fetch(`/tasks/${taskId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

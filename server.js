@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files
-app.use(express.static(__dirname));
+// Serve static files from the current directory
+app.use(express.static(path.join(__dirname)));
 
 // Connect to MongoDB
 console.log('Attempting to connect to MongoDB...');
@@ -215,7 +215,13 @@ app.post('/send-email', (req, res) => {
     });
 });
 
-const PORT = 3000;
+// Add this at the end of your routes
+// This ensures that all routes not handled above will serve index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 }); 
