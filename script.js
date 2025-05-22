@@ -127,7 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 accepted: !userSettings[creator].requiresApproval,
                 creator,
                 notes,
-                id: Date.now()
+                id: Date.now(),
+                date: startDate  // Add the date field that the server requires
             };
 
             const response = await fetch(`${API_URL}/tasks`, {
