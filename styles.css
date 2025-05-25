@@ -234,6 +234,7 @@ button:hover {
 .task.elina, .month-preview-day.has-tasks-elina { background-color: #D8BFD8; } /* Darker Lavender */
 .task.iina, .month-preview-day.has-tasks-iina { background-color: #90EE90; } /* Light Green */
 .task.julia, .month-preview-day.has-tasks-julia { background-color: #FFC0CB; } /* Pink */
+.task.perhe, .month-preview-day.has-tasks-perhe { background-color: #DEB887; } /* Light Brown (BurlyWood) */
 
 .task.accepted, .month-preview-day.accepted {
     border: 1px solid #4CAF50;

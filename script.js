@@ -16,7 +16,8 @@ const userSettings = {
     juha: { requiresApproval: true },
     elina: { requiresApproval: true },
     iina: { requiresApproval: false },
-    julia: { requiresApproval: false }
+    julia: { requiresApproval: false },
+    perhe: { requiresApproval: false }
 };
 
 // Wait for DOM to be fully loaded before initializing
