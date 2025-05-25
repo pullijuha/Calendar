@@ -360,17 +360,17 @@ function renderCalendar() {
 
         // Add click handler for creating new tasks
         dayDiv.addEventListener('click', () => {
+            // Format the date string directly without using Date object
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const dayNum = parseInt(dayDiv.querySelector('.day-number').textContent);
-            const dayStr = dayNum.toString().padStart(2, '0');
+            const dayStr = day.toString().padStart(2, '0');
             const dateString = `${year}-${month}-${dayStr}`;
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
             document.getElementById('endDate').value = dateString;
             
-            // Set default times to 16:00
+            // Set default times
             document.getElementById('startTimeHour').value = '16';
             document.getElementById('startTimeMinute').value = '00';
             document.getElementById('endTimeHour').value = '18';
