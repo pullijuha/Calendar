@@ -116,8 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const start = new Date(startDate + 'T' + startTime);
-            const end = new Date(endDate + 'T' + endTime);
+            // Create dates in local timezone
+            const start = new Date(`${startDate}T${startTime}:00`);
+            const end = new Date(`${endDate}T${endTime}:00`);
 
             if (end < start) {
                 alert('End time must be after start time');
@@ -134,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 creator,
                 notes,
                 id: Date.now(),
-                date: startDate  // Set initial date to start date
+                date: startDate  // Use the input date directly without timezone conversion
             };
 
             const response = await fetch(`${API_URL}/tasks`, {
@@ -421,8 +422,9 @@ function renderYearView() {
             dayElement.textContent = i;
 
             // Check if there are tasks for this day
-            const date = new Date(currentDate.getFullYear(), index, i);
-            const dateKey = date.toISOString().split('T')[0];
+            const month = (index + 1).toString().padStart(2, '0');
+            const day = i.toString().padStart(2, '0');
+            const dateKey = `${currentDate.getFullYear()}-${month}-${day}`;
             
             if (tasks[dateKey] && tasks[dateKey].length > 0) {
                 const tasksByUser = tasks[dateKey].reduce((acc, task) => {
