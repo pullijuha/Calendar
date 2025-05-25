@@ -360,11 +360,17 @@ function renderCalendar() {
 
         // Add click handler for creating new tasks
         dayDiv.addEventListener('click', () => {
+            // Get the day number directly from the div's content
+            const clickedDay = parseInt(dayDiv.querySelector('.day-number').textContent);
+            
             // Format the date string directly without using Date object
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const dayStr = day.toString().padStart(2, '0');
+            const dayStr = clickedDay.toString().padStart(2, '0');
             const dateString = `${year}-${month}-${dayStr}`;
+            
+            console.log('Clicked day:', clickedDay);
+            console.log('Generated date:', dateString);
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
