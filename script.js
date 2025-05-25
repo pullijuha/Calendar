@@ -182,8 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // When opening the task modal, set default dates and times
     document.getElementById('calendar').addEventListener('click', (e) => {
         if (e.target.classList.contains('calendar-day')) {
-            selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(e.target.querySelector('.day-number').textContent));
-            const dateString = selectedDate.toISOString().split('T')[0];
+            const clickedDay = parseInt(e.target.querySelector('.day-number').textContent);
+            const year = currentDate.getFullYear();
+            const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+            const dayStr = (clickedDay + 1).toString().padStart(2, '0');  // Add +1 here
+            const dateString = `${year}-${month}-${dayStr}`;
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
