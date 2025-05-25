@@ -364,14 +364,10 @@ function renderCalendar() {
 
         // Add click handler for creating new tasks
         dayDiv.addEventListener('click', () => {
-            // Get the clicked day number from the div
-            const clickedDay = parseInt(dayDiv.querySelector('.day-number').textContent);
-            
-            // Create the date string in local time
+            // Hard code the date to 9 for testing
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const dayStr = (clickedDay + 1).toString().padStart(2, '0');
-            const dateString = `${year}-${month}-${dayStr}`;
+            const dateString = `${year}-${month}-09`;
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
