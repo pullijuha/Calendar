@@ -360,7 +360,22 @@ function renderCalendar() {
 
         // Add click handler for creating new tasks
         dayDiv.addEventListener('click', () => {
-            selectedDate = currentDayDate;
+            const year = currentDate.getFullYear();
+            const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+            const dayNum = parseInt(dayDiv.querySelector('.day-number').textContent);
+            const dayStr = dayNum.toString().padStart(2, '0');
+            const dateString = `${year}-${month}-${dayStr}`;
+            
+            // Set default dates
+            document.getElementById('startDate').value = dateString;
+            document.getElementById('endDate').value = dateString;
+            
+            // Set default times to 16:00
+            document.getElementById('startTimeHour').value = '16';
+            document.getElementById('startTimeMinute').value = '00';
+            document.getElementById('endTimeHour').value = '18';
+            document.getElementById('endTimeMinute').value = '00';
+            
             modal.style.display = 'block';
         });
 
