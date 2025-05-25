@@ -82,13 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set default dates when opening the task form
     const setDefaultDates = () => {
-        const year = currentDate.getFullYear();
-        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-        const dateString = `${year}-${month}-09`;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
         
         // Set default dates
-        document.getElementById('startDate').value = dateString;
-        document.getElementById('endDate').value = dateString;
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
 
         // Set default times to 16:00
         document.getElementById('startTimeHour').value = '16';
@@ -110,15 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const endHour = document.getElementById('endTimeHour').value.padStart(2, '0');
             const endMinute = document.getElementById('endTimeMinute').value.padStart(2, '0');
             const endTime = `${endHour}:${endMinute}`;
-            const creator = document.getElementById('currentUser').value;
+            const creator = document.getElementById('taskCreator').value;
+            const assignedTo = document.getElementById('assignedUser').value;
             const notes = document.getElementById('taskNotes').value;
 
-            // Validate time inputs
-            if (startHour < 0 || startHour > 23 || startMinute < 0 || startMinute > 59 ||
-                endHour < 0 || endHour > 23 || endMinute < 0 || endMinute > 59) {
-                alert('Please enter valid times (hours: 0-23, minutes: 0-59)');
-                return;
-            }
+            console.log('Form values:', {
+                creator: document.getElementById('taskCreator').value,
+                assignedTo: document.getElementById('assignedUser').value
+            });
 
             const newTask = {
                 title,
@@ -126,12 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 startTime,
                 endDate,
                 endTime,
-                accepted: !userSettings[creator].requiresApproval,
+                accepted: !userSettings[assignedTo].requiresApproval,
                 creator,
+                assignedTo,
                 notes,
                 id: Date.now(),
                 date: startDate
             };
+
+            console.log('Sending task:', newTask);
 
             const response = await fetch(`${API_URL}/tasks`, {
                 method: 'POST',
@@ -148,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const responseData = await response.json();
+            console.log('Server response:', responseData);
             
             // Add task to all relevant dates
             const currentDate = new Date(startDate);
@@ -161,8 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create a new task instance for each date
                 const taskForDate = {
                     ...responseData,
-                    date: dateKey
+                    date: dateKey,
+                    assignedTo: assignedTo  // Explicitly set assignedTo
                 };
+                console.log('Adding task to calendar:', taskForDate);
                 tasks[dateKey].push(taskForDate);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
@@ -278,6 +285,7 @@ function showTaskDetails(task) {
     document.getElementById('detailsTitle').textContent = task.title;
     document.getElementById('detailsTime').textContent = `${task.startTime} - ${task.endTime}`;
     document.getElementById('detailsCreator').textContent = task.creator;
+    document.getElementById('detailsAssignedTo').textContent = task.assignedTo;
     document.getElementById('detailsStatus').textContent = task.accepted ? 'Accepted' : 'Pending';
     document.getElementById('detailsNotes').textContent = task.notes || 'No notes added';
     
@@ -340,8 +348,10 @@ function renderCalendar() {
             tasksContainer.classList.add('tasks-container');
             
             tasks[dateKey].forEach(task => {
+                console.log('Rendering task:', task); // Debug log
                 const taskElement = document.createElement('div');
-                taskElement.classList.add('task', task.creator);
+                taskElement.classList.add('task');
+                taskElement.classList.add(task.assignedTo);  // Use assignedTo directly for color
                 if (task.accepted) taskElement.classList.add('accepted');
                 
                 const taskContent = document.createElement('div');
@@ -366,10 +376,11 @@ function renderCalendar() {
 
         // Add click handler for creating new tasks
         dayDiv.addEventListener('click', () => {
-            // Hard code the date to 9 for testing
+            const clickedDay = parseInt(dayDiv.querySelector('.day-number').textContent);
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const dateString = `${year}-${month}-09`;
+            const dayStr = clickedDay.toString().padStart(2, '0');
+            const dateString = `${year}-${month}-${dayStr}`;
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
@@ -378,7 +389,7 @@ function renderCalendar() {
             // Set default times
             document.getElementById('startTimeHour').value = '16';
             document.getElementById('startTimeMinute').value = '00';
-            document.getElementById('endTimeHour').value = '18';
+            document.getElementById('endTimeHour').value = '19';
             document.getElementById('endTimeMinute').value = '00';
             
             modal.style.display = 'block';
@@ -449,15 +460,16 @@ function renderYearView() {
             
             if (tasks[dateKey] && tasks[dateKey].length > 0) {
                 const tasksByUser = tasks[dateKey].reduce((acc, task) => {
-                    if (!acc[task.creator]) {
-                        acc[task.creator] = {
+                    const assignedUser = task.assignedTo;  // Use assignedTo directly
+                    if (!acc[assignedUser]) {
+                        acc[assignedUser] = {
                             count: 0,
                             hasAccepted: false
                         };
                     }
-                    acc[task.creator].count++;
+                    acc[assignedUser].count++;
                     if (task.accepted) {
-                        acc[task.creator].hasAccepted = true;
+                        acc[assignedUser].hasAccepted = true;
                     }
                     return acc;
                 }, {});

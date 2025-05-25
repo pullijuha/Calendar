@@ -230,13 +230,17 @@ button:hover {
 }
 
 /* Task colors */
-.task.juha { background-color: #ADD8E6; }
-.task.elina { background-color: #90EE90; }
-.task.iina { background-color: #87CEEB; }
-.task.julia { background-color: #DDA0DD; }
+.task.juha, .month-preview-day.has-tasks-juha { background-color: #ADD8E6; } /* Light Blue */
+.task.elina, .month-preview-day.has-tasks-elina { background-color: #D8BFD8; } /* Darker Lavender */
+.task.iina, .month-preview-day.has-tasks-iina { background-color: #90EE90; } /* Light Green */
+.task.julia, .month-preview-day.has-tasks-julia { background-color: #FFC0CB; } /* Pink */
 
-.task.accepted {
+.task.accepted, .month-preview-day.accepted {
     border: 1px solid #4CAF50;
+}
+
+.month-preview-day.multiple-tasks {
+    background: linear-gradient(45deg, #ADD8E6 50%, #D8BFD8 50%);
 }
 
 /* Time input styles */

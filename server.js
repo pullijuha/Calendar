@@ -43,10 +43,11 @@ const taskSchema = new mongoose.Schema({
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
     creator: { type: String, required: true },
+    assignedTo: { type: String, required: true },
     accepted: { type: Boolean, default: false },
     date: { type: String, required: true },
     id: { type: Number, required: true },
-    notes: { type: String, default: '' }  // Add notes field
+    notes: { type: String, default: '' }
 }, { 
     timestamps: true,
     strict: false 
@@ -83,6 +84,7 @@ app.get('/tasks', async (req, res) => {
                 startTime: task.startTime,
                 endTime: task.endTime,
                 creator: task.creator,
+                assignedTo: task.assignedTo,
                 accepted: task.accepted,
                 id: task.id
             });
@@ -110,7 +112,7 @@ app.post('/tasks', async (req, res) => {
         }
         
         // Validate required fields
-        const requiredFields = ['title', 'startTime', 'endTime', 'creator', 'date', 'id'];
+        const requiredFields = ['title', 'startTime', 'endTime', 'creator', 'assignedTo', 'date', 'id'];
         const missingFields = requiredFields.filter(field => {
             const value = req.body[field];
             console.log(`Checking field ${field}:`, value);
@@ -130,6 +132,7 @@ app.post('/tasks', async (req, res) => {
             startTime: req.body.startTime,
             endTime: req.body.endTime,
             creator: req.body.creator,
+            assignedTo: req.body.assignedTo,
             accepted: req.body.accepted || false,
             date: req.body.date,
             id: req.body.id
@@ -158,6 +161,7 @@ app.post('/tasks', async (req, res) => {
             startTime: savedTask.startTime,
             endTime: savedTask.endTime,
             creator: savedTask.creator,
+            assignedTo: savedTask.assignedTo,
             accepted: savedTask.accepted,
             date: savedTask.date,
             id: savedTask.id
