@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const clickedDay = parseInt(e.target.querySelector('.day-number').textContent);
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const dayStr = (clickedDay + 1).toString().padStart(2, '0');  // Add +1 here
+            const dayStr = (clickedDay).toString().padStart(2, '0');  // Add +1 here
             const dateString = `${year}-${month}-${dayStr}`;
             
             // Set default dates
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set default times to 16:00
             document.getElementById('startTimeHour').value = '16';
             document.getElementById('startTimeMinute').value = '00';
-            document.getElementById('endTimeHour').value = '18';
+            document.getElementById('endTimeHour').value = '19';
             document.getElementById('endTimeMinute').value = '00';
             
             modal.style.display = 'block';
