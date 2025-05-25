@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set default times to 16:00
         document.getElementById('startTimeHour').value = '16';
         document.getElementById('startTimeMinute').value = '00';
-        document.getElementById('endTimeHour').value = '18';
+        document.getElementById('endTimeHour').value = '19';
         document.getElementById('endTimeMinute').value = '00';
     };
 
