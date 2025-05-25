@@ -82,7 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set default dates when opening the task form
     const setDefaultDates = () => {
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+        
         document.getElementById('startDate').value = today;
         document.getElementById('endDate').value = today;
         
