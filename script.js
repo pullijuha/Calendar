@@ -116,15 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Create dates in local timezone
-            const start = new Date(`${startDate}T${startTime}:00`);
-            const end = new Date(`${endDate}T${endTime}:00`);
-
-            if (end < start) {
-                alert('End time must be after start time');
-                return;
-            }
-
             const newTask = {
                 title,
                 startDate,
@@ -135,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 creator,
                 notes,
                 id: Date.now(),
-                date: startDate  // Use the input date directly without timezone conversion
+                date: startDate
             };
 
             const response = await fetch(`${API_URL}/tasks`, {
@@ -166,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create a new task instance for each date
                 const taskForDate = {
                     ...responseData,
-                    date: dateKey  // Set the correct date for each instance
+                    date: dateKey
                 };
                 tasks[dateKey].push(taskForDate);
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -320,15 +311,19 @@ function renderCalendar() {
         const dayDiv = document.createElement('div');
         dayDiv.classList.add('calendar-day');
         
-        const currentDayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        if (currentDayDate.toDateString() === new Date().toDateString()) {
+        // Format date string for this day
+        const year = currentDate.getFullYear();
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const dayStr = day.toString().padStart(2, '0');
+        const dateKey = `${year}-${month}-${dayStr}`;
+        
+        if (dateKey === new Date().toISOString().split('T')[0]) {
             dayDiv.classList.add('today');
         }
 
         dayDiv.innerHTML = `<div class="day-number">${day}</div>`;
         
         // Add tasks for this day
-        const dateKey = currentDayDate.toISOString().split('T')[0];
         if (tasks[dateKey] && tasks[dateKey].length > 0) {
             const tasksContainer = document.createElement('div');
             tasksContainer.classList.add('tasks-container');
@@ -363,14 +358,11 @@ function renderCalendar() {
             // Get the day number directly from the div's content
             const clickedDay = parseInt(dayDiv.querySelector('.day-number').textContent);
             
-            // Format the date string directly without using Date object
+            // Create the date string in local time
             const year = currentDate.getFullYear();
             const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
             const dayStr = clickedDay.toString().padStart(2, '0');
             const dateString = `${year}-${month}-${dayStr}`;
-            
-            console.log('Clicked day:', clickedDay);
-            console.log('Generated date:', dateString);
             
             // Set default dates
             document.getElementById('startDate').value = dateString;
